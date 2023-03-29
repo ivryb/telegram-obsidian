@@ -1,6 +1,5 @@
-import { Bot, InlineKeyboard, session } from 'grammy';
+import { Bot, session } from 'grammy';
 import { run, sequentialize } from '@grammyjs/runner';
-import { hydrateReply, parseMode } from '@grammyjs/parse-mode';
 import { RedisAdapter } from '@grammyjs/storage-redis';
 
 import IORedis from 'ioredis';
@@ -8,23 +7,9 @@ import IORedis from 'ioredis';
 const { telegramBotToken, redisURL } = process.env;
 
 const getInitialSessionData = () => ({
-  userId: null,
-  firstName: null,
-  lastName: null,
-  username: null,
-
   webhookLink: null,
   isEditingWebhookLink: true
 });
-
-const saveUser = (ctx) => {
-  const user = ctx.from;
-
-  ctx.session.userId = user.id;
-  ctx.session.firstName = user.first_name;
-  ctx.session.lastName = user.last_name;
-  ctx.session.username = user.username;
-}
 
 const saveWebhookLink = (ctx, link) => {
   ctx.session.webhookLink = link.replace('?path=test/spotify.md', '');
@@ -37,17 +22,14 @@ const getSessionKey = (ctx) => {
 
 const redis = new IORedis(redisURL);
 
-const storage = new RedisAdapter({ instance: redis });
-
 const botSession = session({
   initial: getInitialSessionData,
-  storage,
+  storage: new RedisAdapter({ instance: redis }),
   getSessionKey
 });
 
 const bot = new Bot(telegramBotToken);
 
-bot.use(hydrateReply);
 bot.use(sequentialize(getSessionKey))
 bot.use(botSession);
 
@@ -55,12 +37,8 @@ const replyWithSetupMessage = async (ctx) => {
   await ctx.reply('Please, send me your Obsidian Webhook link');
 };
 
-bot.command('start', async (ctx) => {
-  await replyWithSetupMessage(ctx);
-});
-
 const sendMessageToObsidian = async (ctx, webhookLink, msg) => {
-  const title = msg.split('\n')[0];
+  const title = msg.split('\n', 1)[0].replace('/', '\/');
 
   try {
     await fetch(`${webhookLink}?path=${title}.md`, {
@@ -76,6 +54,10 @@ const sendMessageToObsidian = async (ctx, webhookLink, msg) => {
   }
 };
 
+bot.command('start', async (ctx) => {
+  await replyWithSetupMessage(ctx);
+});
+
 bot.on('message:entities:url', async (ctx) => {
   const { webhookLink, isEditingWebhookLink } = ctx.session;
 
@@ -90,8 +72,6 @@ bot.on('message:entities:url', async (ctx) => {
 
 bot.on('message', async (ctx) => {
   console.log('Start message processing');
-
-  saveUser(ctx);
 
   const { webhookLink, isEditingWebhookLink } = ctx.session;
 
