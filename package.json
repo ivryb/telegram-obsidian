@@ -15,6 +15,6 @@
     "@grammyjs/runner": "^2.0.3",
     "@grammyjs/storage-redis": "^2.1.4",
     "grammy": "^1.15.3",
-    "ioredis": "^5.3.1",
+    "ioredis": "^5.3.1"
   }
 }
