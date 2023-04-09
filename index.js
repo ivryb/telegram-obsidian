@@ -39,11 +39,12 @@ const replyWithSetupMessage = async (ctx) => {
 
 const sendMessageToObsidian = async (ctx, webhookLink, msg) => {
   const title = msg.split('\n', 1)[0].replace('/', '\/');
+  const content = msg + '\n#Telegram';
 
   try {
     await fetch(`${webhookLink}?path=${title}.md`, {
       method: 'POST',
-      body: msg
+      body: content
     });
 
     await ctx.reply('Message sent to your Obsidian vault')
