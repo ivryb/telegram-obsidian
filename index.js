@@ -45,13 +45,10 @@ const sendMessageToObsidian = async (webhookLink, msg) => {
 
 bot.command('start', async (ctx) => {
   await ctx.reply(`Hi! This bot allows you to quickly create new notes in your Obsidian vault directly from Telegram.\n\nHere's how you can start it up:\n1. Install and activate the <a href="https://publish.obsidian.md/hub/02+-+Community+Expansions/02.05+All+Community+Expansions/Plugins/obsidian-webhooks">Obsidian Webhooks</a> plugin in your Obsidian vault.\n2. In Obsidian, go to the Webhooks plugin settings and log in. You will be redirected to the plugin's website.\n3. On the Webhooks plugin website, you will recieve your Webhook URL. Copy that Webhook URL and send it to this bot.`, {
-    parse_mode: 'HTML'
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
   });
 });
-
-const getMessageText = (ctx) => {
-  
-}
 
 bot.on('msg', async (ctx) => {
   const { webhookLink, isEditingWebhookLink } = ctx.session;
