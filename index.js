@@ -69,7 +69,7 @@ bot.on('msg', async (ctx) => {
     return await ctx.reply(`Great, your webhook URL is saved. Further messages will be re-sent to your Obsidian vault.\n\nFirst line of a message will be the note's title, and the intire message will be the note's text. Additionally, the #Telegram hashtag will be appended to the note.`)
   }
 
-  if (!isDM && !isMention) return null;
+  if (!isDM && !isMention) return;
 
   if (!hasActiveWebhook) {
     return await ctx.reply('Please, send me your Obsidian Webhook link');
